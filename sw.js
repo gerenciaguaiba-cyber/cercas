@@ -1,6 +1,6 @@
 // Guarda o app no celular para abrir sem internet.
-var VERSAO = 'cercas-v1';
-var ARQUIVOS = ['./', './index.html', './manifest.json', './icone-192.png', './icone-512.png'];
+var VERSAO = 'cercas-v2';
+var ARQUIVOS = ['./', './index.html', './manifest.json', './icone-192.png', './icone-512.png', './modulos-geo.js'];
 
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(VERSAO).then(function (c) { return c.addAll(ARQUIVOS); }));

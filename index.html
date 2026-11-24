@@ -11,437 +11,635 @@
 <link rel="apple-touch-icon" href="icone-192.png">
 <style>
   :root { --bg:#F4F3EE; --ink:#17201A; --muted:#55605A; --green:#1E6B3B; --green-dk:#14502B;
-          --exc:#14502B; --bom:#5FA36F; --ronda:#D9A441; --crit:#B42318; --none:#B8BDB9; }
+          --exc:#14502B; --bom:#5FA36F; --ronda:#D9A441; --crit:#B42318; --sem:#B8BDB9; --fora:#ECEAE3; }
   * { box-sizing: border-box; }
-  html, body { margin:0; background:var(--bg); color:var(--ink);
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-  .tela { display:none; min-height:100vh; flex-direction:column; padding:20px 18px 120px; max-width:560px; margin:0 auto; }
+  html, body { margin:0; background:var(--bg); color:var(--ink); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+  .tela { display:none; min-height:100vh; flex-direction:column; padding:18px 18px 150px; max-width:620px; margin:0 auto; }
   .tela.ativa { display:flex; }
-  h1 { font-size:28px; margin:4px 0 2px; }
-  h2 { font-size:17px; margin:20px 0 8px; }
-  .sub { color:var(--muted); font-size:14px; }
-  .card { background:#fff; border-radius:14px; padding:14px 16px; }
-  .faixa { border-radius:14px; padding:14px 16px; display:flex; gap:12px; align-items:center; margin-top:14px; }
+  h1 { font-size:26px; margin:2px 0 6px; line-height:1.15; }
+  h2 { font-size:16px; margin:18px 0 8px; }
+  .sub { color:var(--muted); font-size:13px; }
+  .card { background:#fff; border-radius:14px; padding:12px 14px; }
+  .faixa { border-radius:14px; padding:12px 14px; display:flex; gap:10px; align-items:center; margin-top:10px; font-size:15px; }
   .escura { background:var(--ink); color:#F4F3EE; }
-  .verde { background:#DDEBDF; color:var(--green-dk); font-weight:600; }
+  .vermelha { background:#FDE3E0; color:#7A1A12; font-weight:600; }
+  .cinza { background:#3E4742; color:#fff; font-weight:600; }
   .aviso { background:#FCEBD0; color:#6B3A00; font-weight:600; }
-  .erro { background:#FDE3E0; color:#7A1A12; font-weight:600; }
-  .btn { display:flex; align-items:center; justify-content:center; gap:10px; width:100%; min-height:60px; border:0;
-    border-radius:16px; background:var(--green); color:#fff; font-size:19px; font-weight:700; cursor:pointer; text-decoration:none; }
-  .btn:active { background:var(--green-dk); }
-  .btn.sec { background:#fff; color:var(--ink); border:1.5px solid #D5D8D3; font-size:16px; min-height:52px; }
-  .rodape { position:fixed; left:0; right:0; bottom:0; padding:14px 18px 22px;
-    background:linear-gradient(to top, var(--bg) 75%, rgba(244,243,238,0)); }
-  .rodape > div { max-width:560px; margin:0 auto; display:flex; flex-direction:column; gap:10px; }
-  label { display:block; font-weight:600; margin:16px 0 6px; }
-  input, select { width:100%; font-size:18px; padding:14px; border-radius:12px; border:1.5px solid #C9CFCA; background:#fff; color:var(--ink); }
-  .lista { display:flex; flex-direction:column; gap:8px; }
-  .linha { display:flex; align-items:center; justify-content:space-between; gap:10px; background:#fff; border-radius:12px;
-    padding:14px 16px; min-height:54px; font-size:17px; font-weight:600; border:0; width:100%; text-align:left; color:var(--ink); }
-  button.linha { cursor:pointer; }
-  .feito { color:var(--green); font-size:14px; }
-  .falta { color:var(--muted); font-size:14px; font-weight:500; }
-  .grade { display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:6px; }
-  .grade div { border-radius:12px; padding:10px 2px; text-align:center; font-size:11px; font-weight:600; }
-  .grade b { display:block; font-size:24px; }
-  .marca { width:6px; align-self:stretch; border-radius:4px; margin:-6px 0; }
+  .btn { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; min-height:56px; border:0; border-radius:16px;
+    background:var(--green); color:#fff; font-size:17px; font-weight:700; cursor:pointer; text-decoration:none; font-family:inherit; }
+  .btn:active { filter:brightness(0.9); }
+  .btn.sec { background:#fff; color:var(--ink); border:1.5px solid #D5D8D3; }
+  .btn.verm { background:#B42318; }
+  .btn.contorno { background:#fff; color:#B42318; border:2px solid #B42318; }
+  .btn:disabled { opacity:.5; }
+  .rodape { position:fixed; left:0; right:0; bottom:0; background:var(--bg); z-index:5; }
+  .rodape .acoes { max-width:620px; margin:0 auto; padding:10px 18px 8px; display:flex; gap:10px; }
+  nav.abas { display:grid; background:#fff; border-top:1px solid #E1E3DE; padding:4px 4px 16px; }
+  nav.abas button { background:none; border:0; display:flex; flex-direction:column; align-items:center; gap:2px; padding:7px 0; color:var(--muted); font-size:11px; font-weight:600; font-family:inherit; cursor:pointer; }
+  nav.abas button.on { color:var(--green); font-weight:700; }
+  label { display:block; font-weight:600; margin:14px 0 6px; font-size:15px; }
+  input, textarea, select { width:100%; font-size:17px; padding:13px; border-radius:12px; border:1.5px solid #C9CFCA; background:#fff; color:var(--ink); font-family:inherit; }
+  textarea { resize:none; line-height:1.4; }
+  .lista { display:flex; flex-direction:column; gap:6px; }
+  .linha { display:flex; align-items:center; gap:10px; background:#fff; border-radius:12px; padding:12px 14px; min-height:52px; border:0; width:100%; text-align:left; color:var(--ink); font-family:inherit; font-size:15px; cursor:pointer; }
+  .marca { width:6px; align-self:stretch; border-radius:3px; flex-shrink:0; }
   .num { font-size:18px; font-weight:700; font-variant-numeric:tabular-nums; }
-  .barras { display:flex; align-items:flex-end; gap:6px; height:110px; margin-top:10px; }
-  .barras div { flex:1; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:4px; height:100%;
-    font-size:10px; color:var(--muted); font-weight:600; }
+  .grade5 { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:6px; }
+  .tile { border-radius:12px; padding:9px 2px; text-align:center; font-size:10.5px; font-weight:600; }
+  .tile b { display:block; font-size:22px; }
+  .chip { border-radius:10px; padding:8px 2px; text-align:center; font-size:13px; font-weight:700; line-height:1.2; border:2px solid transparent; font-family:inherit; cursor:pointer; }
+  .chip small { display:block; font-size:11px; font-weight:600; }
+  .grupo { font-size:13px; font-weight:700; color:var(--muted); margin:12px 0 6px; display:flex; justify-content:space-between; align-items:center; }
+  .barras { display:flex; align-items:flex-end; gap:5px; height:96px; margin-top:8px; }
+  .barras div { flex:1; display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:3px; height:100%; font-size:10px; color:var(--muted); font-weight:600; }
   .barras span { display:block; width:100%; border-radius:4px 4px 0 0; }
-  .ok-circ { width:96px; height:96px; border-radius:48px; background:var(--green); display:flex; align-items:center; justify-content:center; margin:40px auto 16px; }
-  .centro { text-align:center; }
+  .toggle { width:48px; height:28px; border-radius:14px; background:#C9CFCA; position:relative; border:0; flex-shrink:0; cursor:pointer; }
+  .toggle::after { content:''; position:absolute; top:3px; left:3px; width:22px; height:22px; border-radius:11px; background:#fff; transition:left .15s; }
+  .toggle.on { background:var(--green); }
+  .toggle.on::after { left:23px; }
+  .foto { width:100%; border-radius:14px; display:block; background:repeating-linear-gradient(135deg,#C9CFCA 0 16px,#D5D9D3 16px 32px); min-height:160px; max-height:280px; object-fit:cover; }
+  .link { background:none; border:0; color:var(--green); font-size:15px; font-weight:600; padding:8px 0; cursor:pointer; font-family:inherit; }
   .escondido { display:none !important; }
-  .link { background:none; border:0; color:var(--green); font-size:15px; font-weight:600; padding:10px 0; cursor:pointer; }
+  .centro { text-align:center; }
+  .mapa svg { width:100%; height:auto; display:block; }
+  .legenda { display:flex; flex-wrap:wrap; gap:6px 10px; font-size:11px; color:#3E4742; font-weight:600; }
+  .legenda span { display:flex; align-items:center; gap:5px; }
+  .legenda i { width:11px; height:11px; border-radius:3px; display:inline-block; }
+  .ok-circ { width:92px; height:92px; border-radius:46px; background:var(--green); display:flex; align-items:center; justify-content:center; margin:34px auto 14px; }
 </style>
 </head>
 <body>
 
-<!-- ============ CONFIGURAÇÃO (primeira vez) ============ -->
-<section id="t-config" class="tela">
-  <h1>Configurar celular</h1>
-  <div class="sub">Isso é feito uma vez só, com internet.</div>
-  <label for="c-nome">Seu nome</label>
-  <input id="c-nome" autocomplete="name" placeholder="Ex.: João">
-  <label for="c-senha">Senha do app</label>
-  <input id="c-senha" autocomplete="off" placeholder="Senha que o gerente passou">
-  <label for="c-perfil">Este celular é de</label>
-  <select id="c-perfil">
-    <option value="func">Funcionário (faz a ronda)</option>
-    <option value="gerente">Gerente (vê o painel)</option>
-  </select>
-  <div id="c-msg" class="faixa erro escondido"></div>
-  <div class="rodape"><div><button class="btn" id="c-salvar">Salvar</button></div></div>
+<!-- ===================== ENTRAR ===================== -->
+<section id="t-entrar" class="tela">
+  <div class="sub">Monitoramento de cercas</div>
+  <h1>Entrar</h1>
+  <label for="e-nome">Seu nome</label>
+  <input id="e-nome" autocomplete="name" placeholder="Ex.: João">
+  <label for="e-senha">Senha do seu perfil</label>
+  <input id="e-senha" autocomplete="off" placeholder="Senha que a gerência passou">
+  <div class="card" style="margin-top:16px; font-size:14px; line-height:1.5; color:#3E4742">A senha define o perfil: <b>Gerência</b>, <b>Capataz</b>, <b>Controle</b> ou <b>Manutenção</b>. Faça isto no Wi-Fi da sede.</div>
+  <div id="e-msg" class="faixa vermelha escondido"></div>
+  <div class="rodape"><div class="acoes"><button class="btn" id="e-entrar">Entrar</button></div></div>
 </section>
 
-<!-- ============ RONDA DO DIA (funcionário) ============ -->
+<!-- ===================== RONDA (Controle e quem mede) ===================== -->
 <section id="t-ronda" class="tela">
-  <div class="sub" id="r-data"></div>
+  <div class="sub" id="r-sub"></div>
   <h1>Ronda de hoje</h1>
-  <div class="faixa escura" id="r-fila">
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M2 8.8a15 15 0 0 1 20 0"/><path d="M5 12.5a10 10 0 0 1 14 0"/><path d="M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19.5" r=".8"/></svg>
-    <div><div id="r-fila-txt" style="font-size:17px;font-weight:600"></div><div id="r-fila-sub" style="font-size:14px;color:#C9CFCA"></div></div>
+  <div class="faixa escura" id="r-fila"></div>
+  <div class="faixa vermelha escondido" id="r-erro"></div>
+  <div style="display:flex; align-items:center; gap:10px; margin-top:12px">
+    <div style="flex:1; height:10px; border-radius:5px; background:#E4E4DE; overflow:hidden"><div id="r-barra" style="height:100%; background:var(--green); width:0"></div></div>
+    <b id="r-conta"></b>
   </div>
-  <div class="faixa erro escondido" id="r-erro"></div>
-  <h2 id="r-titulo-lista">Medidos hoje</h2>
-  <div class="lista" id="r-lista"></div>
-  <button class="link" id="r-trocar">Trocar nome ou senha</button>
-  <div class="rodape"><div>
-    <button class="btn" id="r-medir">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8a2 2 0 0 1 2-2h2.5l1.5-2h6l1.5 2H19a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.5"/></svg>
-      Medir módulo
-    </button>
-  </div></div>
+  <div class="legenda" style="margin-top:8px"><span><i style="background:var(--bom)"></i>Medido hoje (cor da voltagem)</span><span><i style="border:2px solid var(--ronda); background:#fff"></i>Falta medir</span></div>
+  <div id="r-grupos"></div>
+  <button class="link" data-sair>Trocar usuário</button>
 </section>
 
-<!-- ============ ESCOLHER MÓDULO + FOTO ============ -->
-<section id="t-modulo" class="tela">
-  <h1>Qual módulo?</h1>
-  <div class="sub">Toque no módulo onde você está. A câmera abre em seguida.</div>
-  <h2></h2>
-  <div class="lista" id="m-lista"></div>
-  <input type="file" id="m-camera" accept="image/*" capture="environment" class="escondido">
-  <div class="rodape"><div><button class="btn sec" id="m-voltar">Voltar</button></div></div>
+<!-- ===================== ESCOLHER MÓDULO PARA MEDIR ===================== -->
+<section id="t-medir" class="tela">
+  <div class="sub" id="m-sub">Toque no módulo. A câmera abre em seguida.</div>
+  <h1 id="m-titulo">Qual módulo?</h1>
+  <div id="m-gps" class="faixa aviso">Procurando o GPS…</div>
+  <div id="m-lista"></div>
 </section>
 
-<!-- ============ GUARDADO ============ -->
+<!-- ===================== GUARDADO ===================== -->
 <section id="t-salvo" class="tela centro">
-  <div class="ok-circ"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg></div>
-  <h1>Medição guardada</h1>
-  <div style="font-size:18px;font-weight:600;margin-top:6px" id="s-info"></div>
-  <div class="card" style="margin-top:20px;text-align:left;font-size:15px;line-height:1.5">
+  <div class="ok-circ"><svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg></div>
+  <h1 id="s-titulo">Medição guardada</h1>
+  <div style="font-size:18px; font-weight:600" id="s-info"></div>
+  <div class="card" style="margin-top:18px; text-align:left; font-size:15px; line-height:1.5">
     <div id="s-gps"></div>
-    <div style="color:var(--muted);margin-top:6px">A leitura do medidor é feita quando o celular chegar no Wi-Fi da sede.</div>
+    <div class="sub" style="font-size:14px; margin-top:6px" id="s-texto">A leitura do medidor é feita quando o celular chegar no Wi-Fi da sede.</div>
   </div>
-  <div class="sub" style="margin-top:16px" id="s-fila"></div>
-  <div class="rodape"><div><button class="btn" id="s-proximo">Próximo módulo</button></div></div>
+  <div class="sub" style="margin-top:14px" id="s-fila"></div>
 </section>
 
-<!-- ============ PAINEL (gerente) ============ -->
+<!-- ===================== INFORMAR FALHA ===================== -->
+<section id="t-falha" class="tela">
+  <div class="sub" id="f-sub"></div>
+  <h1>Informar falha</h1>
+  <label for="f-modulo">Módulo</label>
+  <select id="f-modulo"></select>
+  <div class="sub" id="f-gps" style="margin-top:6px"></div>
+  <label>Foto da falha</label>
+  <img id="f-foto" class="foto" alt="">
+  <button class="btn sec" id="f-tirar" style="margin-top:8px">Tirar foto</button>
+  <label for="f-desc">O que você viu?</label>
+  <textarea id="f-desc" rows="4" placeholder="Ex.: galho em cima do fio, perto da porteira"></textarea>
+  <div class="sub" style="margin-top:10px; line-height:1.45">Vai para <b>Gerência, Capataz e Manutenção</b> quando o celular chegar no Wi-Fi. Se for urgente, avise também por rádio.</div>
+  <div class="faixa vermelha escondido" id="f-msg"></div>
+</section>
+
+<!-- ===================== PAINEL (Gerência / Capataz / Controle) ===================== -->
 <section id="t-painel" class="tela">
-  <div class="sub" id="p-atual">Carregando…</div>
+  <div class="sub" id="p-sub">Carregando…</div>
   <h1>Cercas</h1>
-  <div class="grade" style="margin-top:12px">
-    <div style="background:var(--exc);color:#fff"><b id="p-exc">–</b>Excelente</div>
-    <div style="background:#DDEBDF;color:var(--green-dk)"><b id="p-bom">–</b>Bom</div>
-    <div style="background:#FCEBD0;color:#6B3A00"><b id="p-ronda">–</b>Ronda</div>
-    <div style="background:var(--crit);color:#fff"><b id="p-crit">–</b>Crítico</div>
-    <div style="background:#E4E4DE;color:#3E4742"><b id="p-sem">–</b>Sem medir</div>
-  </div>
-  <div class="faixa escura escondido" id="p-atraso"></div>
-  <div class="faixa aviso escondido" id="p-conferir"></div>
-  <div class="faixa erro escondido" id="p-erro"></div>
-  <h2>Módulos <span class="sub" style="font-weight:500">· kV · A</span></h2>
-  <div class="lista" id="p-lista"></div>
-  <button class="link" id="p-trocar">Trocar nome ou senha</button>
-  <div class="rodape"><div><button class="btn sec" id="p-atualizar">Atualizar</button></div></div>
+  <div class="grade5" id="p-tiles"></div>
+  <div class="sub" id="p-ativos" style="margin-top:6px"></div>
+  <div id="p-avisos"></div>
+  <h2>Aparelhos</h2>
+  <div class="lista" id="p-aparelhos"></div>
+  <h2>Módulos <span class="sub" style="font-weight:500">· pior primeiro</span></h2>
+  <div class="lista" id="p-modulos"></div>
+  <button class="link" data-sair>Trocar usuário</button>
 </section>
 
-<!-- ============ HISTÓRICO DO MÓDULO (gerente) ============ -->
-<section id="t-detalhe" class="tela">
-  <button class="link" id="d-voltar" style="align-self:flex-start">‹ Voltar ao painel</button>
-  <h1 id="d-nome"></h1>
-  <div class="sub" id="d-ultima"></div>
-  <div class="card" style="margin-top:14px">
-    <b>Tensão (kV)</b> <span class="sub">· últimas medições</span>
-    <div class="barras" id="d-kv"></div>
-  </div>
-  <div class="card" style="margin-top:10px">
-    <b>Corrente (A)</b> <span class="sub">· últimas medições</span>
-    <div class="barras" id="d-a"></div>
-  </div>
-  <div class="lista" id="d-lista" style="margin-top:14px"></div>
+<!-- ===================== MAPA ===================== -->
+<section id="t-mapa" class="tela">
+  <div class="sub" id="mp-sub"></div>
+  <h1>Mapa</h1>
+  <div class="legenda" id="mp-leg"></div>
+  <div class="card mapa" style="padding:6px; margin-top:10px" id="mp-svg"></div>
+  <div class="sub" style="margin-top:8px">Toque num módulo para ver o histórico e os pontos de medição.</div>
 </section>
 
+<!-- ===================== HISTÓRICO DO MÓDULO ===================== -->
+<section id="t-modulo" class="tela">
+  <button class="link" data-voltar style="align-self:flex-start">‹ Voltar</button>
+  <div class="sub" id="h-sub"></div>
+  <h1 id="h-nome"></h1>
+  <div id="h-conteudo"></div>
+</section>
+
+<!-- ===================== MÓDULOS EM MONITORAMENTO ===================== -->
+<section id="t-modulos" class="tela">
+  <div class="sub">Gerência e Capataz · ILP</div>
+  <h1>Módulos em monitoramento</h1>
+  <div class="sub" style="font-size:14px; line-height:1.45">Desligado: sai da ronda, não gera alerta e fica como “fora de uso” no mapa. O histórico continua guardado. Precisa de internet.</div>
+  <div class="faixa vermelha escondido" id="mm-msg"></div>
+  <div id="mm-lista"></div>
+</section>
+
+<!-- ===================== MANUTENÇÃO / FALHAS ===================== -->
+<section id="t-manut" class="tela">
+  <div class="sub" id="mn-sub"></div>
+  <h1>Pendências</h1>
+  <h2>Falhas abertas <span class="sub" id="mn-qf"></span></h2>
+  <div class="lista" id="mn-falhas"></div>
+  <h2>Módulos críticos <span class="sub">· abaixo de 5 kV</span></h2>
+  <div class="lista" id="mn-criticos"></div>
+  <button class="link" data-sair>Trocar usuário</button>
+</section>
+
+<!-- ===================== FECHAR FALHA ===================== -->
+<section id="t-fechar" class="tela">
+  <button class="link" data-voltar style="align-self:flex-start">‹ Voltar</button>
+  <div class="sub" id="fc-sub"></div>
+  <h1 id="fc-nome"></h1>
+  <img id="fc-foto" class="foto" alt="">
+  <div class="card" style="margin-top:10px; font-size:15px; line-height:1.45" id="fc-desc"></div>
+  <div class="card" style="margin-top:10px; font-size:14px; line-height:1.5">
+    <b>Para fechar a falha</b><br>1. Faça o conserto.<br>2. Meça de novo e tire a foto do medidor.<br>
+    <span class="sub">A foto fica guardada como comprovante. A falha fecha quando ela chegar no Wi-Fi.</span>
+  </div>
+</section>
+
+<div class="rodape" id="rodape"><div class="acoes" id="acoes"></div><nav class="abas" id="abas"></nav></div>
+<input type="file" id="camera" accept="image/*" capture="environment" class="escondido">
+
+<script src="modulos-geo.js"></script>
 <script>
 // ======================= AJUSTES =======================
 var URL_SISTEMA = 'https://script.google.com/macros/s/AKfycbxCoHmqxv5vIesYq6W6-6SozsCd6HxSRAyHA6ucCOjgOS5dsZiqvPlLHcHuWw-p6UU6/exec';
-var TOTAL_MODULOS = 30;
-var CORES = { 'Excelente':'#14502B', 'Bom':'#5FA36F', 'Necessário ronda':'#D9A441', 'Crítico':'#B42318', 'Conferir foto':'#3E4742' };
+var CORES = { exc:'#14502B', bom:'#5FA36F', ronda:'#D9A441', crit:'#B42318', sem:'#B8BDB9', fora:'#ECEAE3' };
+var TXT = { exc:'#fff', bom:'#0E2A17', ronda:'#2B1A00', crit:'#fff', sem:'#2B302D', fora:'#8A8F8B' };
+var NOMES = { exc:'Excelente', bom:'Bom', ronda:'Ronda', crit:'Crítico', sem:'Sem medir', fora:'Fora de uso' };
+var IC = {
+  camera:'<path d="M3 8a2 2 0 0 1 2-2h2.5l1.5-2h6l1.5 2H19a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.5"/>',
+  lista:'<path d="M4 6h16M4 12h16M4 18h16"/>', mapa:'<path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/>',
+  alerta:'<path d="M12 3l9.5 17h-19z"/><path d="M12 10v4"/><circle cx="12" cy="17" r="0.6"/>', ligar:'<rect x="2" y="7" width="20" height="10" rx="5"/><circle cx="16" cy="12" r="3"/>',
+  chave:'<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/>',
+  wifi:'<path d="M2 8.8a15 15 0 0 1 20 0"/><path d="M5 12.5a10 10 0 0 1 14 0"/><path d="M8.5 16a5 5 0 0 1 7 0"/><circle cx="12" cy="19.5" r="0.8"/>',
+  ok:'<path d="M5 12l5 5L20 7"/>', gps:'<path d="M12 22s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/>'
+};
+function ic(n, s, cor) { return '<svg width="' + (s || 22) + '" height="' + (s || 22) + '" viewBox="0 0 24 24" fill="none" stroke="' + (cor || 'currentColor') + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + IC[n] + '</svg>'; }
+function $(id) { return document.getElementById(id); }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
+function fmt(v) { return v === '' || v == null ? '–' : String(v).replace('.', ','); }
+function hojeISO() { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+function diaISO(x) { var d = new Date(x); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+function fmtData(x) { var d = new Date(x); return d.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' }) + ' ' + d.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' }); }
+function faixaKv(kv) { return kv > 8 ? 'exc' : kv >= 6 ? 'bom' : kv >= 5 ? 'ronda' : 'crit'; }
+function compararMod(a, b) { var x = a.match(/^(\d+)(.*)$/), y = b.match(/^(\d+)(.*)$/); return (+x[1] - +y[1]) || (x[2] < y[2] ? -1 : x[2] > y[2] ? 1 : 0); }
 
 // ======================= DADOS LOCAIS =======================
-var cfg = lerCfg();
-function lerCfg() { try { return JSON.parse(localStorage.getItem('cfg') || 'null'); } catch (e) { return null; } }
-function salvarCfg(c) { localStorage.setItem('cfg', JSON.stringify(c)); cfg = c; }
-function hojeTxt() { return new Date().toLocaleDateString('pt-BR'); }
-function medidosHoje() {
-  try { var h = JSON.parse(localStorage.getItem('hoje') || '{}'); return h.dia === hojeTxt() ? h : { dia: hojeTxt(), itens: [] }; }
-  catch (e) { return { dia: hojeTxt(), itens: [] }; }
-}
-function marcarMedido(modulo, hora) { var h = medidosHoje(); h.itens.push({ modulo: modulo, hora: hora }); localStorage.setItem('hoje', JSON.stringify(h)); }
-function modulosLista() {
-  try { var m = JSON.parse(localStorage.getItem('modulos') || 'null'); if (m && m.length) return m; } catch (e) {}
-  var l = []; for (var i = 1; i <= TOTAL_MODULOS; i++) l.push('Módulo ' + (i < 10 ? '0' + i : i)); return l;
-}
+var cfg = ler('cfg'); var est = ler('estado');
+function ler(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } }
+function gravar(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+function medidosHojeLocal() { var h = ler('hoje'); return h && h.dia === hojeISO() ? h.itens : []; }
+function marcarMedidoLocal(m) { var it = medidosHojeLocal(); it.push(m); gravar('hoje', { dia: hojeISO(), itens: it }); }
 
-// Fila de fotos guardadas no celular (IndexedDB)
-var dbPromessa = new Promise(function (ok, falha) {
-  var r = indexedDB.open('cercas', 1);
+var dbP = new Promise(function (ok, falha) {
+  var r = indexedDB.open('cercas2', 1);
   r.onupgradeneeded = function () { r.result.createObjectStore('fila', { keyPath: 'id' }); };
-  r.onsuccess = function () { ok(r.result); };
-  r.onerror = function () { falha(r.error); };
+  r.onsuccess = function () { ok(r.result); }; r.onerror = function () { falha(r.error); };
 });
-function filaOp(modo, fn) {
-  return dbPromessa.then(function (db) { return new Promise(function (ok, falha) {
-    var tx = db.transaction('fila', modo); var st = tx.objectStore('fila'); var res = fn(st);
-    tx.oncomplete = function () { ok(res && res.result !== undefined ? res.result : undefined); };
-    tx.onerror = function () { falha(tx.error); };
-  }); });
+function filaOp(modo, fn) { return dbP.then(function (db) { return new Promise(function (ok, falha) {
+  var tx = db.transaction('fila', modo), req = fn(tx.objectStore('fila'));
+  tx.oncomplete = function () { ok(req ? req.result : undefined); }; tx.onerror = function () { falha(tx.error); };
+}); }); }
+function filaAdd(i) { return filaOp('readwrite', function (s) { return s.put(i); }); }
+function filaTodos() { return filaOp('readonly', function (s) { return s.getAll(); }); }
+function filaDel(id) { return filaOp('readwrite', function (s) { return s.delete(id); }); }
+
+// ======================= MÓDULOS E SITUAÇÃO =======================
+function infoModulos() { return (est && est.modulos) || Object.keys(GEO.modulos).sort(compararMod).map(function (m) { return { modulo: m, aparelho: '', ativo: true, ultima: null }; }); }
+function situacao(m) {
+  if (!m.ativo) return 'fora';
+  if (!m.ultima || m.ultima.kv === '' || m.ultima.kv == null) return 'sem';
+  if (m.diasSemMedicao != null && m.diasSemMedicao >= 2) return 'sem';
+  return faixaKv(+m.ultima.kv);
 }
-function filaAdd(item) { return filaOp('readwrite', function (st) { return st.put(item); }); }
-function filaTodos() { return filaOp('readonly', function (st) { return st.getAll(); }); }
-function filaDel(id) { return filaOp('readwrite', function (st) { return st.delete(id); }); }
+function medidoHoje(m) { return medidosHojeLocal().indexOf(m.modulo) >= 0 || (m.ultima && diaISO(m.ultima.dataHora) === hojeISO()); }
+function porAparelho(lista) {
+  var g = {}; lista.forEach(function (m) { (g[m.aparelho || '?'] = g[m.aparelho || '?'] || []).push(m); });
+  return Object.keys(g).sort().map(function (a) { g[a].sort(function (x, y) { return compararMod(x.modulo, y.modulo); }); return { aparelho: a, modulos: g[a] }; });
+}
+function marcaAparelho(a) { var ap = est && est.aparelhos && est.aparelhos.filter(function (x) { return x.n === a; })[0]; return ap ? ap.marca : ''; }
+
+// ======================= GPS =======================
+var gps = null;
+function pegarGps(cb) {
+  if (!navigator.geolocation) return cb && cb();
+  navigator.geolocation.getCurrentPosition(function (p) { gps = { lat: p.coords.latitude, lon: p.coords.longitude, t: Date.now() }; cb && cb(); },
+    function () { cb && cb(); }, { enableHighAccuracy: true, timeout: 30000, maximumAge: 60000 });
+}
+function gpsBom() { return gps && Date.now() - gps.t < 5 * 60000; }
+function dentro(x, y, ring) { var c = false; for (var i = 0, j = ring.length - 1; i < ring.length; j = i++) { var a = ring[i], b = ring[j];
+  if ((a[1] > y) !== (b[1] > y) && x < (b[0] - a[0]) * (y - a[1]) / (b[1] - a[1]) + a[0]) c = !c; } return c; }
+function moduloNoGps() {
+  if (!gpsBom()) return null;
+  for (var m in GEO.modulos) if (GEO.modulos[m].some(function (r) { return dentro(gps.lon, gps.lat, r); })) return m;
+  return null;
+}
 
 // ======================= NAVEGAÇÃO =======================
-function mostrar(id) {
+var pilha = [];
+function mostrar(id, semPilha) {
+  var atual = document.querySelector('.tela.ativa');
+  if (atual && !semPilha && atual.id !== id) pilha.push(atual.id);
   document.querySelectorAll('.tela').forEach(function (t) { t.classList.remove('ativa'); });
-  document.getElementById(id).classList.add('ativa');
-  window.scrollTo(0, 0);
+  $(id).classList.add('ativa'); window.scrollTo(0, 0); montarRodape(id);
 }
-function $(id) { return document.getElementById(id); }
-function inicio() {
-  if (!cfg) { mostrar('t-config'); return; }
-  if (cfg.perfil === 'gerente') { mostrar('t-painel'); carregarPainel(); }
-  else { mostrar('t-ronda'); desenharRonda(); enviarFila(); }
-}
-
-// ======================= CONFIGURAÇÃO =======================
-$('c-salvar').onclick = function () {
-  var nome = $('c-nome').value.trim(), senha = $('c-senha').value.trim(), perfil = $('c-perfil').value;
-  if (!nome || !senha) { $('c-msg').textContent = 'Preencha o nome e a senha.'; $('c-msg').classList.remove('escondido'); return; }
-  $('c-salvar').textContent = 'Conferindo…';
-  fetch(URL_SISTEMA + '?acao=modulos&senha=' + encodeURIComponent(senha))
-    .then(function (r) { return r.json(); })
-    .then(function (d) {
-      if (!d.ok) throw new Error(d.erro === 'senha' ? 'Senha errada. Confira com o gerente.' : 'Erro: ' + d.erro);
-      if (d.modulos && d.modulos.length) localStorage.setItem('modulos', JSON.stringify(d.modulos));
-      salvarCfg({ nome: nome, senha: senha, perfil: perfil });
-      inicio();
-    })
-    .catch(function (e) {
-      $('c-msg').textContent = e.message.indexOf('Senha') === 0 || e.message.indexOf('Erro') === 0 ? e.message :
-        'Sem conexão. Faça a configuração com internet (Wi-Fi da sede).';
-      $('c-msg').classList.remove('escondido');
-    })
-    .finally(function () { $('c-salvar').textContent = 'Salvar'; });
+function voltar() { mostrar(pilha.pop() || telaInicial(), true); }
+function telaInicial() { return !cfg ? 't-entrar' : cfg.perfil === 'Controle' ? 't-ronda' : cfg.perfil === 'Manutenção' ? 't-manut' : 't-painel'; }
+var ABAS = {
+  'Controle': [['Ronda','camera','ronda'],['Painel','lista','painel'],['Mapa','mapa','mapa']],
+  'Manutenção': [['Pendências','chave','manut'],['Mapa','mapa','mapa'],['Medir','camera','ronda']],
+  'Gestor': [['Painel','lista','painel'],['Mapa','mapa','mapa'],['Falhas','alerta','manut'],['Módulos','ligar','modulos'],['Medir','camera','ronda']]
 };
-function trocar() {
-  if (cfg) { $('c-nome').value = cfg.nome; $('c-senha').value = cfg.senha; $('c-perfil').value = cfg.perfil; }
-  mostrar('t-config');
+function abrir(nome) {
+  if (nome === 'ronda') { desenharRonda(); mostrar('t-ronda', true); }
+  if (nome === 'painel') { desenharPainel(); mostrar('t-painel', true); }
+  if (nome === 'mapa') { desenharMapa(); mostrar('t-mapa', true); }
+  if (nome === 'manut') { desenharManut(); mostrar('t-manut', true); }
+  if (nome === 'modulos') { desenharModulos(); mostrar('t-modulos', true); }
+  pilha = [];
 }
-$('r-trocar').onclick = trocar; $('p-trocar').onclick = trocar;
+function montarRodape(id) {
+  var acoes = $('acoes'), abas = $('abas'); acoes.innerHTML = ''; abas.innerHTML = '';
+  if (id === 't-entrar') { $('rodape').classList.add('escondido'); return; }
+  $('rodape').classList.remove('escondido');
+  var semAbas = ['t-medir', 't-salvo', 't-falha', 't-fechar'].indexOf(id) >= 0;
+  if (id === 't-ronda') acoes.innerHTML = '<button class="btn" id="b-medir">' + ic('camera') + 'Medir</button><button class="btn contorno" id="b-falha">' + ic('alerta') + 'Falha</button>';
+  if (id === 't-painel' || id === 't-manut') acoes.innerHTML = '<button class="btn sec" id="b-atualizar">Atualizar</button><button class="btn contorno" id="b-falha">' + ic('alerta') + 'Falha</button>';
+  if (id === 't-medir') acoes.innerHTML = '<button class="btn sec" data-voltar>Voltar</button>';
+  if (id === 't-salvo') acoes.innerHTML = '<button class="btn" id="b-proximo">Continuar</button>';
+  if (id === 't-falha') acoes.innerHTML = '<button class="btn sec" data-voltar style="flex:0.6">Cancelar</button><button class="btn verm" id="b-enviar-falha">' + ic('alerta') + 'Enviar falha</button>';
+  if (id === 't-fechar') acoes.innerHTML = '<button class="btn" id="b-medir-fechar">' + ic('camera') + 'Medir e fechar falha</button>';
+  if (!acoes.innerHTML) acoes.classList.add('escondido'); else acoes.classList.remove('escondido');
+  if (semAbas || !cfg) { abas.classList.add('escondido'); return; }
+  abas.classList.remove('escondido');
+  var lista = ABAS[cfg.perfil === 'Gerência' || cfg.perfil === 'Capataz' ? 'Gestor' : cfg.perfil] || ABAS.Controle;
+  var mapaTela = { ronda:'t-ronda', painel:'t-painel', mapa:'t-mapa', manut:'t-manut', modulos:'t-modulos' };
+  abas.style.gridTemplateColumns = 'repeat(' + lista.length + ', minmax(0,1fr))';
+  lista.forEach(function (a) {
+    var b = document.createElement('button'); b.innerHTML = ic(a[1]) + a[0];
+    if (mapaTela[a[2]] === id) b.className = 'on';
+    b.onclick = function () { abrir(a[2]); }; abas.appendChild(b);
+  });
+}
+document.addEventListener('click', function (e) {
+  var t = e.target.closest('button'); if (!t) return;
+  if (t.hasAttribute('data-voltar')) voltar();
+  if (t.hasAttribute('data-sair')) { if (confirm('Sair deste celular? As medições guardadas continuam na fila.')) { localStorage.removeItem('cfg'); cfg = null; mostrar('t-entrar', true); } }
+  if (t.id === 'b-medir') abrirMedir(null);
+  if (t.id === 'b-falha') abrirFalha();
+  if (t.id === 'b-atualizar') atualizar(true);
+  if (t.id === 'b-proximo') voltarDepoisDeGuardar();
+  if (t.id === 'b-enviar-falha') enviarFalha();
+  if (t.id === 'b-medir-fechar') abrirMedir(falhaAberta);
+});
 
-// ======================= RONDA (funcionário) =======================
+// ======================= ENTRAR =======================
+$('e-entrar').onclick = function () {
+  var nome = $('e-nome').value.trim(), senha = $('e-senha').value.trim();
+  if (!nome || !senha) return msgEntrar('Preencha o nome e a senha.');
+  $('e-entrar').textContent = 'Conferindo…';
+  fetch(URL_SISTEMA + '?acao=login&senha=' + encodeURIComponent(senha)).then(function (r) { return r.json(); }).then(function (d) {
+    if (!d.ok) throw new Error(d.erro === 'senha' ? 'Senha errada. Confira com a gerência.' : 'Erro: ' + d.erro);
+    cfg = { nome: nome, senha: senha, perfil: d.perfil }; gravar('cfg', cfg);
+    return atualizar(false).then(function () { abrir({ 'Controle':'ronda', 'Manutenção':'manut' }[cfg.perfil] || 'painel'); });
+  }).catch(function (e) { msgEntrar(e.message.indexOf('Senha') === 0 || e.message.indexOf('Erro') === 0 ? e.message : 'Sem conexão. Faça isto no Wi-Fi da sede.'); })
+    .finally(function () { $('e-entrar').textContent = 'Entrar'; });
+};
+function msgEntrar(t) { $('e-msg').textContent = t; $('e-msg').classList.remove('escondido'); }
+
+// ======================= BUSCAR ESTADO =======================
+function atualizar(redesenhar) {
+  if (!cfg || !navigator.onLine) { if (redesenhar) redesenharAtual(); return Promise.resolve(); }
+  return fetch(URL_SISTEMA + '?senha=' + encodeURIComponent(cfg.senha)).then(function (r) { return r.json(); }).then(function (d) {
+    if (!d.ok) { if (d.erro === 'senha') { alert('A senha do seu perfil mudou. Entre de novo.'); localStorage.removeItem('cfg'); cfg = null; mostrar('t-entrar', true); } return; }
+    est = d; gravar('estado', d);
+    if (cfg.perfil !== d.perfil) { cfg.perfil = d.perfil; gravar('cfg', cfg); }
+    if (redesenhar) redesenharAtual();
+  }).catch(function () { if (redesenhar) redesenharAtual(); });
+}
+function redesenharAtual() {
+  var a = document.querySelector('.tela.ativa'); if (!a) return;
+  ({ 't-ronda': desenharRonda, 't-painel': desenharPainel, 't-mapa': desenharMapa, 't-manut': desenharManut, 't-modulos': desenharModulos })[a.id] && ({ 't-ronda': desenharRonda, 't-painel': desenharPainel, 't-mapa': desenharMapa, 't-manut': desenharManut, 't-modulos': desenharModulos })[a.id]();
+}
+function textoAtualizado() { return est ? 'Atualizado ' + est.atualizado + (navigator.onLine ? '' : ' · sem internet') : 'Sem dados ainda · conecte no Wi-Fi'; }
+
+// ======================= RONDA =======================
 function desenharRonda() {
-  $('r-data').textContent = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+  $('r-sub').textContent = new Date().toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long' }) + ' · ' + (cfg ? cfg.nome + ' (' + cfg.perfil + ')' : '');
   filaTodos().then(function (f) {
-    var n = f.length;
-    $('r-fila-txt').textContent = n === 0 ? 'Tudo enviado' : n + (n === 1 ? ' medição guardada' : ' medições guardadas');
-    $('r-fila-sub').textContent = n === 0 ? 'Nenhuma foto esperando' : (navigator.onLine ? 'Enviando…' : 'Enviam sozinhas no Wi-Fi da sede');
+    var med = f.filter(function (i) { return i.tipo === 'medicao'; }).length, fal = f.length - med;
+    $('r-fila').innerHTML = ic('wifi', 24, '#F4F3EE') + '<div><div style="font-weight:600">' + (f.length ? med + ' medição(ões) e ' + fal + ' falha(s) guardadas' : 'Tudo enviado') + '</div><div style="font-size:13px; color:#C9CFCA">' +
+      (f.length ? (navigator.onLine ? 'Enviando…' : 'Enviam sozinhas no Wi-Fi da sede') : 'Nada esperando envio') + '</div></div>';
   });
-  var h = medidosHoje(), feitos = {};
-  h.itens.forEach(function (i) { feitos[i.modulo] = i.hora; });
-  var lista = $('r-lista'); lista.innerHTML = '';
-  var nomes = Object.keys(feitos);
-  $('r-titulo-lista').textContent = 'Medidos hoje: ' + nomes.length + ' de ' + modulosLista().length;
-  nomes.forEach(function (m) {
-    var d = document.createElement('div'); d.className = 'linha';
-    d.innerHTML = '<span></span><span class="feito">✓ ' + feitos[m] + '</span>';
-    d.firstChild.textContent = m; lista.appendChild(d);
-  });
-}
-$('r-medir').onclick = function () {
-  var feitos = {}; medidosHoje().itens.forEach(function (i) { feitos[i.modulo] = 1; });
-  var l = $('m-lista'); l.innerHTML = '';
-  modulosLista().forEach(function (m) {
-    var b = document.createElement('button'); b.className = 'linha';
-    b.innerHTML = '<span></span><span class="' + (feitos[m] ? 'feito' : 'falta') + '">' + (feitos[m] ? '✓ medido' : 'Falta medir') + '</span>';
-    b.firstChild.textContent = m;
-    b.onclick = function () { moduloEscolhido = m; $('m-camera').value = ''; $('m-camera').click(); };
-    l.appendChild(b);
-  });
-  mostrar('t-modulo');
-  pegarGps(); // começa a buscar o GPS já, enquanto ele escolhe
-};
-$('m-voltar').onclick = function () { mostrar('t-ronda'); desenharRonda(); };
-
-var moduloEscolhido = null, ultimoGps = null;
-function pegarGps() {
-  if (!navigator.geolocation) return;
-  navigator.geolocation.getCurrentPosition(function (p) {
-    ultimoGps = { lat: p.coords.latitude, lon: p.coords.longitude, quando: Date.now() };
-  }, function () {}, { enableHighAccuracy: true, timeout: 30000, maximumAge: 120000 });
+  var ativos = infoModulos().filter(function (m) { return m.ativo; });
+  var feitos = ativos.filter(medidoHoje).length;
+  $('r-conta').textContent = feitos + ' de ' + ativos.length;
+  $('r-barra').style.width = (ativos.length ? Math.round(100 * feitos / ativos.length) : 0) + '%';
+  $('r-grupos').innerHTML = porAparelho(ativos).map(function (g) {
+    return '<div class="grupo">Aparelho ' + esc(g.aparelho) + ' · ' + esc(marcaAparelho(g.aparelho)) + '</div><div class="grade5">' + g.modulos.map(function (m) {
+      if (medidoHoje(m)) { var s = situacao(m), kv = m.ultima && diaISO(m.ultima.dataHora) === hojeISO() ? fmt(m.ultima.kv) + ' kV' : 'enviando';
+        if (s === 'sem') s = 'bom';
+        return '<button class="chip" data-mod="' + esc(m.modulo) + '" style="background:' + (kv === 'enviando' ? '#DDEBDF' : CORES[s]) + '; color:' + (kv === 'enviando' ? '#14502B' : TXT[s]) + '">' + esc(m.modulo) + '<small>' + kv + '</small></button>'; }
+      return '<button class="chip" data-mod="' + esc(m.modulo) + '" style="background:#fff; border-color:#D9A441; color:#6B3A00">' + esc(m.modulo) + '<small>falta</small></button>';
+    }).join('') + '</div>';
+  }).join('') || '<div class="card" style="margin-top:12px">Conecte no Wi-Fi para carregar os módulos.</div>';
+  $('r-grupos').querySelectorAll('[data-mod]').forEach(function (b) { b.onclick = function () { abrirMedirModulo(b.getAttribute('data-mod'), null); }; });
 }
 
-$('m-camera').onchange = function (ev) {
-  var arq = ev.target.files && ev.target.files[0];
-  if (!arq || !moduloEscolhido) return;
-  pegarGps();
-  reduzirFoto(arq).then(function (base64) {
-    var agora = new Date();
-    var gpsBom = ultimoGps && (Date.now() - ultimoGps.quando) < 5 * 60000;
-    var item = {
-      id: agora.getTime() + '-' + Math.random().toString(36).slice(2, 7),
-      modulo: moduloEscolhido, funcionario: cfg.nome, dataHora: agora.toISOString(),
-      lat: gpsBom ? ultimoGps.lat : '', lon: gpsBom ? ultimoGps.lon : '', foto: base64
-    };
+// ======================= MEDIR =======================
+var medindo = null, falhaAberta = null;
+function abrirMedir(falha) {
+  if (falha) { abrirMedirModulo(falha.modulo, falha); return; }
+  $('m-titulo').textContent = 'Qual módulo?';
+  var ativos = infoModulos().filter(function (m) { return m.ativo; });
+  $('m-lista').innerHTML = porAparelho(ativos).map(function (g) {
+    return '<div class="grupo">Aparelho ' + esc(g.aparelho) + '</div><div class="grade5">' + g.modulos.map(function (m) {
+      var f = medidoHoje(m);
+      return '<button class="chip" data-mod="' + esc(m.modulo) + '" style="background:' + (f ? '#DDEBDF' : '#fff') + '; border-color:' + (f ? '#DDEBDF' : '#D9A441') + '; color:#17201A">' + esc(m.modulo) + '<small>' + (f ? '✓ hoje' : 'falta') + '</small></button>';
+    }).join('') + '</div>';
+  }).join('');
+  $('m-lista').querySelectorAll('[data-mod]').forEach(function (b) { b.onclick = function () { abrirMedirModulo(b.getAttribute('data-mod'), null); }; });
+  $('m-gps').className = 'faixa aviso'; $('m-gps').textContent = 'Procurando o GPS…';
+  pegarGps(function () {
+    var m = moduloNoGps();
+    if (m) { $('m-gps').className = 'faixa escura'; $('m-gps').innerHTML = ic('gps', 22, '#F4F3EE') + '<div style="flex:1"><b>Você está no MOD ' + esc(m) + '</b><div style="font-size:13px; color:#C9CFCA">Toque para medir este módulo</div></div>';
+      $('m-gps').onclick = function () { abrirMedirModulo(m, null); }; }
+    else { $('m-gps').className = 'faixa aviso'; $('m-gps').textContent = gpsBom() ? 'GPS fora dos módulos. Escolha na lista.' : 'GPS não encontrado. Escolha na lista.'; $('m-gps').onclick = null; }
+  });
+  mostrar('t-medir');
+}
+function abrirMedirModulo(modulo, falha) {
+  medindo = { modulo: modulo, falha: falha };
+  pegarGps(); fotoPara = 'medicao';
+  $('camera').value = ''; $('camera').click();
+}
+
+var fotoPara = 'medicao', fotoFalha = null;
+$('camera').onchange = function (ev) {
+  var arq = ev.target.files && ev.target.files[0]; if (!arq) return;
+  reduzirFoto(arq).then(function (b64) {
+    if (fotoPara === 'falha') { fotoFalha = b64; $('f-foto').src = 'data:image/jpeg;base64,' + b64; $('f-tirar').textContent = 'Tirar outra foto'; return; }
+    var agora = new Date(), bom = gpsBom();
+    var item = { id: 'm' + agora.getTime() + Math.random().toString(36).slice(2, 6), tipo: 'medicao', modulo: medindo.modulo, nome: cfg.nome,
+      dataHora: agora.toISOString(), lat: bom ? gps.lat : '', lon: bom ? gps.lon : '', foto: b64, falhaId: medindo.falha ? medindo.falha.id : '' };
     return filaAdd(item).then(function () {
-      var hora = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-      marcarMedido(moduloEscolhido, hora);
-      $('s-info').textContent = moduloEscolhido + ' · ' + hora;
-      $('s-gps').textContent = gpsBom ? '✓ Local registrado pelo GPS' : 'GPS não encontrado (a foto foi guardada mesmo assim)';
+      marcarMedidoLocal(medindo.modulo);
+      $('s-titulo').textContent = medindo.falha ? 'Falha será fechada' : 'Medição guardada';
+      $('s-info').textContent = 'MOD ' + medindo.modulo + ' · ' + agora.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+      $('s-gps').textContent = bom ? '✓ Local registrado pelo GPS' : 'GPS não encontrado (guardada mesmo assim)';
+      $('s-texto').textContent = medindo.falha ? 'A foto do medidor fica como comprovante. A falha fecha quando ela chegar no Wi-Fi da sede.' : 'A leitura do medidor é feita quando o celular chegar no Wi-Fi da sede.';
       return filaTodos();
-    }).then(function (f) {
-      $('s-fila').textContent = f.length + (f.length === 1 ? ' medição aguardando envio' : ' medições aguardando envio');
-      mostrar('t-salvo');
-      enviarFila();
-    });
+    }).then(function (f) { $('s-fila').textContent = f.length + ' item(ns) aguardando envio'; mostrar('t-salvo', true); enviarFila(); });
   }).catch(function (e) { alert('Não consegui guardar a foto: ' + e.message); });
 };
-$('s-proximo').onclick = function () { mostrar('t-ronda'); desenharRonda(); };
-
-// Diminui a foto para ~1280px (envio rápido e barato), mantendo o visor legível
+function voltarDepoisDeGuardar() { if (medindo && medindo.falha) { falhaAberta = null; abrir('manut'); } else abrir(cfg.perfil === 'Controle' || cfg.perfil === 'Manutenção' ? 'ronda' : 'ronda'); }
 function reduzirFoto(arq) {
   return new Promise(function (ok, falha) {
     var img = new Image(), url = URL.createObjectURL(arq);
-    img.onload = function () {
-      var max = 1280, w = img.naturalWidth, h = img.naturalHeight, f = Math.min(1, max / Math.max(w, h));
-      var c = document.createElement('canvas'); c.width = Math.round(w * f); c.height = Math.round(h * f);
-      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-      URL.revokeObjectURL(url);
-      ok(c.toDataURL('image/jpeg', 0.82).split(',')[1]);
-    };
-    img.onerror = function () { falha(new Error('foto inválida')); };
-    img.src = url;
+    img.onload = function () { var max = 1280, f = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+      var c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * f); c.height = Math.round(img.naturalHeight * f);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url); ok(c.toDataURL('image/jpeg', 0.82).split(',')[1]); };
+    img.onerror = function () { falha(new Error('foto inválida')); }; img.src = url;
   });
 }
 
-// ======================= ENVIO (quando tiver internet) =======================
+// ======================= FALHA =======================
+function abrirFalha() {
+  fotoFalha = null; $('f-foto').removeAttribute('src'); $('f-tirar').textContent = 'Tirar foto'; $('f-desc').value = ''; $('f-msg').classList.add('escondido');
+  $('f-sub').textContent = cfg.nome + ' · ' + cfg.perfil;
+  $('f-modulo').innerHTML = '<option value="">Escolha o módulo</option>' + infoModulos().map(function (m) { return '<option value="' + esc(m.modulo) + '">MOD ' + esc(m.modulo) + '</option>'; }).join('');
+  $('f-gps').textContent = 'Procurando o GPS…';
+  pegarGps(function () { var m = moduloNoGps(); if (m) { $('f-modulo').value = m; $('f-gps').textContent = '✓ Detectado pelo GPS'; } else $('f-gps').textContent = gpsBom() ? 'GPS fora dos módulos: escolha na lista.' : 'GPS não encontrado: escolha na lista.'; });
+  mostrar('t-falha');
+}
+$('f-tirar').onclick = function () { fotoPara = 'falha'; pegarGps(); $('camera').value = ''; $('camera').click(); };
+function enviarFalha() {
+  var mod = $('f-modulo').value, desc = $('f-desc').value.trim();
+  if (!mod || !fotoFalha || !desc) { $('f-msg').textContent = 'Escolha o módulo, tire a foto e descreva a falha.'; $('f-msg').classList.remove('escondido'); return; }
+  var agora = new Date(), bom = gpsBom();
+  filaAdd({ id: 'f' + agora.getTime() + Math.random().toString(36).slice(2, 6), tipo: 'falha', modulo: mod, nome: cfg.nome, dataHora: agora.toISOString(),
+    lat: bom ? gps.lat : '', lon: bom ? gps.lon : '', foto: fotoFalha, descricao: desc }).then(function () {
+    medindo = null; $('s-titulo').textContent = 'Falha guardada'; $('s-info').textContent = 'MOD ' + mod;
+    $('s-gps').textContent = bom ? '✓ Local registrado pelo GPS' : 'GPS não encontrado';
+    $('s-texto').textContent = 'O alerta sai para Gerência, Capataz e Manutenção quando o celular chegar no Wi-Fi.';
+    return filaTodos();
+  }).then(function (f) { $('s-fila').textContent = f.length + ' item(ns) aguardando envio'; mostrar('t-salvo', true); enviarFila(); });
+}
+
+// ======================= ENVIO =======================
 var enviando = false;
 function enviarFila() {
   if (enviando || !cfg || !navigator.onLine) return;
-  enviando = true;
+  enviando = true; var algum = false;
   filaTodos().then(function (itens) {
     itens.sort(function (a, b) { return a.dataHora < b.dataHora ? -1 : 1; });
-    var cadeia = Promise.resolve();
-    itens.forEach(function (it) {
-      cadeia = cadeia.then(function () {
-        var corpo = JSON.stringify(Object.assign({ senha: cfg.senha }, it));
-        return fetch(URL_SISTEMA, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: corpo })
-          .then(function (r) { return r.json(); })
-          .then(function (d) {
-            if (d.ok) { $('r-erro').classList.add('escondido'); return filaDel(it.id); }
-            if (d.erro === 'senha') throw new Error('Senha do app errada. Toque em "Trocar nome ou senha".');
+    return itens.reduce(function (p, it) {
+      return p.then(function () {
+        var corpo = Object.assign({ senha: cfg.senha, acao: it.tipo }, it);
+        return fetch(URL_SISTEMA, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(corpo) })
+          .then(function (r) { return r.json(); }).then(function (d) {
+            if (d.ok) { algum = true; return filaDel(it.id); }
+            if (d.erro === 'senha') throw new Error('A senha do seu perfil mudou. Toque em "Trocar usuário".');
             throw new Error('Erro no envio: ' + d.erro);
           });
       });
-    });
-    return cadeia;
-  }).catch(function (e) {
-    if (e.message.indexOf('Senha') === 0 || e.message.indexOf('Erro') === 0) {
-      $('r-erro').textContent = e.message; $('r-erro').classList.remove('escondido');
-    }
-  }).finally(function () {
-    enviando = false;
-    if ($('t-ronda').classList.contains('ativa')) desenharRonda();
-  });
+    }, Promise.resolve());
+  }).catch(function (e) { if (/senha|Erro/.test(e.message)) { $('r-erro').textContent = e.message; $('r-erro').classList.remove('escondido'); } })
+    .finally(function () { enviando = false; if (algum) atualizar(true); else redesenharAtual(); });
 }
-window.addEventListener('online', enviarFila);
+window.addEventListener('online', function () { enviarFila(); atualizar(true); });
 setInterval(enviarFila, 60000);
-document.addEventListener('visibilitychange', function () { if (!document.hidden) enviarFila(); });
+document.addEventListener('visibilitychange', function () { if (!document.hidden) { enviarFila(); atualizar(true); } });
 
-// ======================= PAINEL (gerente) =======================
-function sit(u) { return u ? u.situacao : null; }
-function fmtNum(v) { return v === '' || v === null || v === undefined ? '–' : String(v).replace('.', ','); }
-function fmtData(d) { var x = new Date(d); return x.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) + ' ' + x.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); }
-
-function carregarPainel() {
-  $('p-atual').textContent = 'Carregando…'; $('p-erro').classList.add('escondido');
-  fetch(URL_SISTEMA + '?senha=' + encodeURIComponent(cfg.senha))
-    .then(function (r) { return r.json(); })
-    .then(function (d) {
-      if (!d.ok) throw new Error(d.erro === 'senha' ? 'Senha errada.' : d.erro);
-      $('p-atual').textContent = 'Atualizado ' + d.atualizado;
-      var cont = { 'Excelente': 0, 'Bom': 0, 'Necessário ronda': 0, 'Crítico': 0 }, sem = 0, atrasados = [], conferir = [];
-      d.painel.forEach(function (p) {
-        var s = sit(p.ultima);
-        if (!p.ultima || p.diasSemMedicao >= 1) sem++;
-        else if (cont[s] !== undefined) cont[s]++;
-        if (!p.ultima || p.diasSemMedicao >= 2) atrasados.push(p.modulo);
-        if (s === 'Conferir foto') conferir.push(p.modulo);
-      });
-      $('p-exc').textContent = cont['Excelente']; $('p-bom').textContent = cont['Bom'];
-      $('p-ronda').textContent = cont['Necessário ronda']; $('p-crit').textContent = cont['Crítico']; $('p-sem').textContent = sem;
-      faixa('p-atraso', atrasados.length ? atrasados.length + ' sem medição há 2 dias ou mais: ' + atrasados.join(', ') : '');
-      faixa('p-conferir', conferir.length ? 'Foto ilegível para conferir: ' + conferir.join(', ') : '');
-
-      var ordem = { 'Crítico': 0, 'Conferir foto': 1, 'Necessário ronda': 2, 'Bom': 3, 'Excelente': 4 };
-      var linhas = d.painel.slice().sort(function (a, b) {
-        var oa = a.ultima ? (ordem[sit(a.ultima)] ?? 5) : 6, ob = b.ultima ? (ordem[sit(b.ultima)] ?? 5) : 6;
-        return oa - ob || a.modulo.localeCompare(b.modulo);
-      });
-      var l = $('p-lista'); l.innerHTML = '';
-      linhas.forEach(function (p) {
-        var u = p.ultima, b = document.createElement('button'); b.className = 'linha';
-        var cor = u ? (CORES[u.situacao] || '#B8BDB9') : '#B8BDB9';
-        var seta = u && u.seta ? (u.seta === 'esquerda' ? '◀ ' : '▶ ') : '';
-        b.innerHTML = '<span style="display:flex;align-items:center;gap:10px"><span class="marca"></span><span class="nm"></span></span>' +
-          '<span style="display:flex;gap:14px;align-items:center"><span class="num kv"></span><span class="num a"></span></span>';
-        b.querySelector('.marca').style.background = cor;
-        b.querySelector('.nm').textContent = p.modulo + (p.diasSemMedicao >= 1 ? ' · há ' + p.diasSemMedicao + 'd' : '');
-        b.querySelector('.kv').textContent = u ? fmtNum(u.kv) : '–';
-        b.querySelector('.a').textContent = u ? seta + fmtNum(u.amperes) : '–';
-        b.onclick = function () { abrirDetalhe(p.modulo); };
-        l.appendChild(b);
-      });
-    })
-    .catch(function (e) {
-      $('p-atual').textContent = 'Não atualizado';
-      faixa('p-erro', navigator.onLine ? 'Erro: ' + e.message : 'Sem internet. Conecte e toque em Atualizar.');
-    });
+// ======================= PAINEL =======================
+function desenharPainel() {
+  $('p-sub').textContent = textoAtualizado() + (cfg ? ' · ' + cfg.perfil : '');
+  var mods = infoModulos(), ativos = mods.filter(function (m) { return m.ativo; });
+  var c = { exc:0, bom:0, ronda:0, crit:0, sem:0 }; ativos.forEach(function (m) { c[situacao(m)]++; });
+  $('p-tiles').innerHTML = [['exc','#14502B','#fff'],['bom','#DDEBDF','#14502B'],['ronda','#FCEBD0','#6B3A00'],['crit','#B42318','#fff'],['sem','#E4E4DE','#3E4742']].map(function (t) {
+    return '<div class="tile" style="background:' + t[1] + '; color:' + t[2] + '"><b>' + c[t[0]] + '</b>' + NOMES[t[0]] + '</div>'; }).join('');
+  $('p-ativos').textContent = ativos.length + ' em monitoramento · ' + (mods.length - ativos.length) + ' fora de uso';
+  var falhas = (est && est.falhas) || [];
+  var atras = ativos.filter(function (m) { return !m.ultima || m.diasSemMedicao >= 2; }).map(function (m) { return m.modulo; });
+  $('p-avisos').innerHTML = (falhas.length ? '<button class="faixa vermelha linha" id="p-vfalhas" style="background:#FDE3E0; color:#7A1A12">' + ic('alerta', 20, '#B42318') + '<span style="flex:1">' + falhas.length + ' falha(s) aberta(s): ' + esc(falhas.map(function (f) { return f.modulo; }).join(', ')) + '</span>›</button>' : '') +
+    (atras.length ? '<div class="faixa cinza">' + atras.length + ' sem medição há 2 dias ou mais: ' + esc(atras.join(', ')) + '</div>' : '');
+  if ($('p-vfalhas')) $('p-vfalhas').onclick = function () { abrir('manut'); };
+  $('p-aparelhos').innerHTML = porAparelho(mods).map(function (g) {
+    var at = g.modulos.filter(function (m) { return m.ativo; });
+    var lidos = at.filter(function (m) { return m.ultima && m.ultima.kv !== ''; });
+    if (!at.length) return '<div class="linha" style="color:#8A8F8B"><span class="marca" style="background:#D5D3CB"></span><div style="flex:1"><b>Aparelho ' + esc(g.aparelho) + '</b><div class="sub">' + esc(marcaAparelho(g.aparelho)) + ' · ' + g.modulos.length + ' módulos fora de uso</div></div></div>';
+    var pior = lidos.sort(function (a, b) { return a.ultima.kv - b.ultima.kv; })[0];
+    var s = pior ? faixaKv(+pior.ultima.kv) : 'sem';
+    return '<div class="linha"><span class="marca" style="background:' + CORES[s] + '"></span><div style="flex:1"><b>Aparelho ' + esc(g.aparelho) + ' · ' + esc(marcaAparelho(g.aparelho)) + '</b><div class="sub">' + at.length + ' módulos' + (pior ? ' · pior: ' + esc(pior.modulo) : '') + '</div></div><span class="num">' + (pior ? fmt(pior.ultima.kv) + ' kV' : '–') + '</span></div>';
+  }).join('');
+  var ordem = { crit:0, ronda:1, sem:2, bom:3, exc:4 };
+  $('p-modulos').innerHTML = ativos.slice().sort(function (a, b) { return (ordem[situacao(a)] - ordem[situacao(b)]) || compararMod(a.modulo, b.modulo); }).map(function (m) {
+    var s = situacao(m);
+    return '<button class="linha" data-hist="' + esc(m.modulo) + '"><span class="marca" style="background:' + CORES[s] + '"></span><div style="flex:1"><b>MOD ' + esc(m.modulo) + '</b><div class="sub">' + (m.ultima ? fmtData(m.ultima.dataHora) + ' · ' + esc(m.ultima.pessoa) : 'nunca medido') + '</div></div><span class="num">' + (m.ultima ? fmt(m.ultima.kv) + ' kV' : '–') + '</span></button>';
+  }).join('');
+  $('p-modulos').querySelectorAll('[data-hist]').forEach(function (b) { b.onclick = function () { abrirHistorico(b.getAttribute('data-hist')); }; });
 }
-function faixa(id, txt) { $(id).textContent = txt; $(id).classList.toggle('escondido', !txt); }
-$('p-atualizar').onclick = carregarPainel;
 
-function abrirDetalhe(modulo) {
-  mostrar('t-detalhe'); $('d-nome').textContent = modulo; $('d-ultima').textContent = 'Carregando…';
-  $('d-kv').innerHTML = ''; $('d-a').innerHTML = ''; $('d-lista').innerHTML = '';
-  fetch(URL_SISTEMA + '?acao=historico&modulo=' + encodeURIComponent(modulo) + '&senha=' + encodeURIComponent(cfg.senha))
-    .then(function (r) { return r.json(); })
-    .then(function (d) {
-      var h = d.historico || [];
-      if (!h.length) { $('d-ultima').textContent = 'Nenhuma medição ainda.'; return; }
-      var u = h[h.length - 1];
-      $('d-ultima').textContent = 'Última: ' + fmtData(u.dataHora) + ' · ' + (u.funcionario || '') + ' · ' + u.situacao;
-      var lidas = h.filter(function (x) { return x.kv !== ''; });
-      barras('d-kv', lidas.map(function (x) { return x.kv; }), 9, function (v) {
-        return v > 8 ? CORES['Excelente'] : v >= 6 ? CORES['Bom'] : v >= 5 ? CORES['Necessário ronda'] : CORES['Crítico']; });
-      var maxA = Math.max.apply(null, lidas.map(function (x) { return +x.amperes || 0; }).concat([1]));
-      barras('d-a', lidas.map(function (x) { return x.amperes; }), maxA * 1.1, function () { return '#55605A'; });
-      h.slice().reverse().forEach(function (x) {
-        var dv = document.createElement('div'); dv.className = 'linha'; dv.style.fontSize = '15px';
-        dv.innerHTML = '<span></span><span class="num" style="font-size:15px"></span>';
-        dv.firstChild.textContent = fmtData(x.dataHora) + ' · ' + x.situacao;
-        dv.lastChild.textContent = x.kv === '' ? '–' : fmtNum(x.kv) + ' kV · ' + (x.seta ? (x.seta === 'esquerda' ? '◀ ' : '▶ ') : '') + fmtNum(x.amperes) + ' A';
-        $('d-lista').appendChild(dv);
-      });
-    })
-    .catch(function () { $('d-ultima').textContent = 'Sem internet.'; });
+// ======================= MAPA =======================
+function projetor(bb, W, H, pad) {
+  var kx = Math.cos(-23.2 * Math.PI / 180), w = (bb[2] - bb[0]) * kx, h = bb[3] - bb[1];
+  var s = Math.min((W - 2 * pad) / w, (H - 2 * pad) / h), ox = pad + ((W - 2 * pad) - w * s) / 2, oy = pad + ((H - 2 * pad) - h * s) / 2;
+  return function (lon, lat) { return [((lon - bb[0]) * kx * s + ox).toFixed(1), ((bb[3] - lat) * s + oy).toFixed(1)]; };
 }
-function barras(id, vals, max, cor) {
-  var el = $(id);
-  vals.forEach(function (v) {
-    var d = document.createElement('div'), s = document.createElement('span');
-    s.style.height = Math.max(3, Math.round((+v / max) * 80)) + 'px'; s.style.background = cor(+v);
-    d.textContent = fmtNum(v); d.appendChild(s); el.appendChild(d);
+function ptsStr(ring, P) { return ring.map(function (p) { return P(p[0], p[1]).join(','); }).join(' '); }
+function desenharMapa() {
+  $('mp-sub').textContent = textoAtualizado();
+  $('mp-leg').innerHTML = ['exc','bom','ronda','crit','sem','fora'].map(function (k) { return '<span><i style="background:' + CORES[k] + '"></i>' + NOMES[k] + '</span>'; }).join('') +
+    '<span><svg width="12" height="11" viewBox="0 0 12 11" aria-hidden="true"><path d="M0 11L6 0l6 11z" fill="#B42318"/></svg>Falha</span><span><i style="background:#17201A"></i>Aparelho</span>';
+  var bb = GEO.bbox, W = 600, H = Math.round(W * (bb[3] - bb[1]) / ((bb[2] - bb[0]) * Math.cos(-23.2 * Math.PI / 180))) + 16, P = projetor(bb, W, H, 8);
+  var info = {}; infoModulos().forEach(function (m) { info[m.modulo] = m; });
+  var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Mapa dos módulos">';
+  GEO.outros.forEach(function (r) { s += '<polygon points="' + ptsStr(r, P) + '" fill="#E7E6E0" stroke="#fff" stroke-width="0.8"/>'; });
+  var cent = {};
+  Object.keys(GEO.modulos).forEach(function (m) {
+    var st = info[m] ? situacao(info[m]) : 'sem', sx = 0, sy = 0, n = 0;
+    GEO.modulos[m].forEach(function (r) { s += '<polygon data-m="' + m + '" points="' + ptsStr(r, P) + '" fill="' + CORES[st] + '" stroke="#fff" stroke-width="0.8" style="cursor:pointer"/>';
+      r.forEach(function (p) { var q = P(p[0], p[1]); sx += +q[0]; sy += +q[1]; n++; }); });
+    cent[m] = [sx / n, sy / n, st];
   });
+  Object.keys(cent).forEach(function (m) { var c = cent[m]; s += '<text x="' + c[0].toFixed(1) + '" y="' + c[1].toFixed(1) + '" font-size="9" font-weight="700" text-anchor="middle" dominant-baseline="central" fill="' + TXT[c[2]] + '" pointer-events="none">' + m + '</text>'; });
+  ((est && est.aparelhos) || []).forEach(function (a) { if (a.lat === '' || a.lat == null) return; var q = P(+a.lon, +a.lat);
+    s += '<rect x="' + (q[0] - 7) + '" y="' + (q[1] - 7) + '" width="14" height="14" rx="2" fill="#17201A" stroke="#fff"/><text x="' + q[0] + '" y="' + q[1] + '" font-size="10" font-weight="700" text-anchor="middle" dominant-baseline="central" fill="#F2B705">' + a.n + '</text>'; });
+  ((est && est.falhas) || []).forEach(function (f) { var c = f.lat !== '' && f.lat != null ? P(+f.lon, +f.lat).map(Number) : cent[f.modulo]; if (!c) return;
+    s += '<path d="M' + c[0] + ' ' + (c[1] - 14) + ' l8 14 l-16 0 z" fill="#B42318" stroke="#fff" stroke-width="1.5" pointer-events="none"/>'; });
+  $('mp-svg').innerHTML = s + '</svg>';
+  $('mp-svg').querySelectorAll('[data-m]').forEach(function (p) { p.addEventListener('click', function () { abrirHistorico(p.getAttribute('data-m')); }); });
 }
-$('d-voltar').onclick = function () { mostrar('t-painel'); };
+
+// ======================= HISTÓRICO =======================
+function abrirHistorico(m) {
+  var info = infoModulos().filter(function (x) { return x.modulo === m; })[0] || {};
+  $('h-nome').textContent = 'MOD ' + m; $('h-sub').textContent = 'Aparelho ' + (info.aparelho || '?') + (info.ativo === false ? ' · fora de uso' : '');
+  $('h-conteudo').innerHTML = '<div class="card">Carregando…</div>'; mostrar('t-modulo');
+  if (!navigator.onLine) { $('h-conteudo').innerHTML = '<div class="card">Sem internet. O histórico aparece no Wi-Fi da sede.</div>'; return; }
+  fetch(URL_SISTEMA + '?acao=historico&modulo=' + encodeURIComponent(m) + '&senha=' + encodeURIComponent(cfg.senha)).then(function (r) { return r.json(); }).then(function (d) {
+    var h = (d.historico || []).filter(function (x) { return x.kv !== ''; }), u = (d.historico || []).slice(-1)[0];
+    var html = '<div style="display:flex; gap:8px">';
+    html += '<div class="card" style="flex:1"><div class="sub">Última medição</div>' + (u ? '<div class="num" style="font-size:28px; color:' + (u.kv === '' ? '#17201A' : CORES[faixaKv(+u.kv)]) + '">' + fmt(u.kv) + ' kV</div><div class="sub">' + fmtData(u.dataHora) + ' · ' + esc(u.pessoa) + '</div>' : '<div class="sub">nunca medido</div>') + '</div>';
+    (d.falhas || []).forEach(function (f) { html += '<button class="card linha" data-falha="' + esc(f.id) + '" style="flex:1; background:#FDE3E0; color:#7A1A12; display:block"><b style="font-size:13px">Falha aberta</b><div style="font-size:13px; line-height:1.35; margin-top:4px">' + esc(f.descricao) + '</div></button>'; });
+    html += '</div>';
+    // mini mapa com pontos
+    var rings = GEO.modulos[m] || [], xs = [], ys = [];
+    rings.forEach(function (r) { r.forEach(function (p) { xs.push(p[0]); ys.push(p[1]); }); });
+    h.forEach(function (x) { if (x.lat !== '' && x.lon !== '') { xs.push(+x.lon); ys.push(+x.lat); } });
+    if (xs.length) {
+      var bb = [Math.min.apply(null, xs), Math.min.apply(null, ys), Math.max.apply(null, xs), Math.max.apply(null, ys)], P = projetor(bb, 560, 300, 16);
+      var s = '<svg viewBox="0 0 560 300" role="img" aria-label="Pontos onde o módulo foi medido">';
+      rings.forEach(function (r) { s += '<polygon points="' + ptsStr(r, P) + '" fill="#EEF1EC" stroke="#9AA39D" stroke-width="1.5"/>'; });
+      h.forEach(function (x, i) { if (x.lat === '' || x.lon === '') return; var q = P(+x.lon, +x.lat);
+        s += '<circle cx="' + q[0] + '" cy="' + q[1] + '" r="' + (i === h.length - 1 ? 9 : 6) + '" fill="' + CORES[faixaKv(+x.kv)] + '" stroke="#fff" stroke-width="2"/>'; });
+      (d.falhas || []).forEach(function (f) { if (f.lat === '' || f.lon === '') return; var q = P(+f.lon, +f.lat).map(Number); s += '<path d="M' + q[0] + ' ' + (q[1] - 16) + ' l9 16 l-18 0 z" fill="#B42318" stroke="#fff" stroke-width="1.5"/>'; });
+      html += '<div class="card mapa" style="margin-top:8px; padding:6px"><div style="font-size:13px; font-weight:700; padding:6px 8px 0">Onde foi medido <span class="sub">· últimas ' + h.length + '</span></div>' + s + '</svg></div>';
+    }
+    if (h.length) html += '<div class="card" style="margin-top:8px"><b style="font-size:13px">Voltagem (kV)</b><div class="barras">' + h.map(function (x) {
+      return '<div>' + fmt(x.kv) + '<span style="height:' + Math.max(3, Math.round(+x.kv / 9 * 70)) + 'px; background:' + CORES[faixaKv(+x.kv)] + '"></span></div>'; }).join('') + '</div></div>';
+    html += '<div class="lista" style="margin-top:8px">' + (d.historico || []).slice().reverse().map(function (x) {
+      return '<div class="linha" style="font-size:14px"><span style="flex:1">' + fmtData(x.dataHora) + ' · ' + esc(x.pessoa) + '</span><b>' + (x.kv === '' ? 'ilegível' : fmt(x.kv) + ' kV') + '</b></div>'; }).join('') + '</div>';
+    $('h-conteudo').innerHTML = html;
+    $('h-conteudo').querySelectorAll('[data-falha]').forEach(function (b) { b.onclick = function () { abrirFechar(b.getAttribute('data-falha')); }; });
+  }).catch(function () { $('h-conteudo').innerHTML = '<div class="card">Não consegui carregar. Tente no Wi-Fi.</div>'; });
+}
+
+// ======================= MÓDULOS (liga/desliga) =======================
+function desenharModulos() {
+  $('mm-msg').classList.add('escondido');
+  $('mm-lista').innerHTML = porAparelho(infoModulos()).map(function (g) {
+    var algumOn = g.modulos.some(function (m) { return m.ativo; });
+    return '<div class="grupo"><span>Aparelho ' + esc(g.aparelho) + ' · ' + esc(marcaAparelho(g.aparelho)) + '</span><button class="link" data-ap="' + esc(g.aparelho) + '" data-on="' + (algumOn ? '0' : '1') + '">' + (algumOn ? 'Desligar todos' : 'Ligar todos') + '</button></div><div class="lista">' +
+      g.modulos.map(function (m) {
+        return '<div class="linha"><div style="flex:1"><b style="color:' + (m.ativo ? '#17201A' : '#8A8F8B') + '">MOD ' + esc(m.modulo) + '</b><div class="sub">' + (m.ativo ? 'Em monitoramento' : 'Fora de uso' + (m.alteradoEm ? ' desde ' + esc(m.alteradoEm) : '')) + (m.alteradoPor && m.alteradoPor !== 'Configuração inicial' ? ' · ' + esc(m.alteradoPor) : '') + '</div></div><button class="toggle' + (m.ativo ? ' on' : '') + '" role="switch" aria-checked="' + m.ativo + '" aria-label="Monitorar MOD ' + esc(m.modulo) + '" data-tog="' + esc(m.modulo) + '"></button></div>';
+      }).join('') + '</div>';
+  }).join('');
+  $('mm-lista').querySelectorAll('[data-tog]').forEach(function (b) { b.onclick = function () { mudarModulo({ modulo: b.getAttribute('data-tog'), ativo: !b.classList.contains('on') }); }; });
+  $('mm-lista').querySelectorAll('[data-ap]').forEach(function (b) { b.onclick = function () {
+    var on = b.getAttribute('data-on') === '1';
+    if (confirm((on ? 'Ligar' : 'Desligar') + ' todos os módulos do aparelho ' + b.getAttribute('data-ap') + '?')) mudarModulo({ aparelho: b.getAttribute('data-ap'), ativo: on }); }; });
+}
+function mudarModulo(p) {
+  if (!navigator.onLine) { $('mm-msg').textContent = 'Precisa de internet para mudar. Conecte no Wi-Fi.'; $('mm-msg').classList.remove('escondido'); return; }
+  fetch(URL_SISTEMA, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ senha: cfg.senha, acao: 'modulo', nome: cfg.nome }, p)) })
+    .then(function (r) { return r.json(); }).then(function (d) { if (!d.ok) throw new Error(d.erro); return atualizar(true); })
+    .catch(function (e) { $('mm-msg').textContent = 'Não consegui mudar: ' + e.message; $('mm-msg').classList.remove('escondido'); });
+}
+
+// ======================= MANUTENÇÃO / FALHAS =======================
+function desenharManut() {
+  $('mn-sub').textContent = textoAtualizado() + ' · ' + (cfg ? cfg.perfil : '');
+  var falhas = (est && est.falhas) || [];
+  $('mn-qf').textContent = '· ' + falhas.length;
+  $('mn-falhas').innerHTML = falhas.map(function (f) {
+    return '<button class="linha" data-falha="' + esc(f.id) + '" style="align-items:flex-start"><span class="marca" style="background:#B42318"></span><div style="flex:1"><b>MOD ' + esc(f.modulo) + '</b><div style="font-size:14px; line-height:1.35; margin:3px 0">' + esc(f.descricao) + '</div><div class="sub">' + esc(f.pessoa) + ' (' + esc(f.perfil) + ') · ' + fmtData(f.dataHora) + '</div></div>›</button>';
+  }).join('') || '<div class="card sub">Nenhuma falha aberta.</div>';
+  $('mn-falhas').querySelectorAll('[data-falha]').forEach(function (b) { b.onclick = function () { abrirFechar(b.getAttribute('data-falha')); }; });
+  var crit = infoModulos().filter(function (m) { return m.ativo && situacao(m) === 'crit'; });
+  $('mn-criticos').innerHTML = crit.map(function (m) {
+    var temFalha = falhas.some(function (f) { return f.modulo === m.modulo; });
+    return '<button class="linha" data-hist="' + esc(m.modulo) + '"><span class="marca" style="background:#B42318"></span><div style="flex:1"><b>MOD ' + esc(m.modulo) + '</b><div class="sub">Aparelho ' + esc(m.aparelho) + (temFalha ? ' · tem falha aberta' : ' · sem falha informada') + '</div></div><span class="num">' + fmt(m.ultima.kv) + ' kV</span></button>';
+  }).join('') || '<div class="card sub">Nenhum módulo crítico.</div>';
+  $('mn-criticos').querySelectorAll('[data-hist]').forEach(function (b) { b.onclick = function () { abrirHistorico(b.getAttribute('data-hist')); }; });
+}
+function abrirFechar(id) {
+  var f = ((est && est.falhas) || []).filter(function (x) { return x.id === id; })[0]; if (!f) return;
+  falhaAberta = f;
+  $('fc-nome').textContent = 'MOD ' + f.modulo; $('fc-sub').textContent = 'Falha aberta · ' + fmtData(f.dataHora);
+  $('fc-desc').innerHTML = esc(f.descricao) + '<div class="sub" style="margin-top:6px">' + esc(f.pessoa) + ' (' + esc(f.perfil) + ')</div>';
+  $('fc-foto').removeAttribute('src');
+  if (f.fotoId && navigator.onLine) fetch(URL_SISTEMA + '?acao=foto&id=' + encodeURIComponent(f.fotoId) + '&senha=' + encodeURIComponent(cfg.senha)).then(function (r) { return r.json(); })
+    .then(function (d) { if (d.ok) $('fc-foto').src = 'data:image/jpeg;base64,' + d.foto; }).catch(function () {});
+  mostrar('t-fechar');
+}
 
 // ======================= INICIAR =======================
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
-inicio();
+if (cfg) { abrir({ 'Controle':'ronda', 'Manutenção':'manut' }[cfg.perfil] || 'painel'); enviarFila(); atualizar(true); }
+else mostrar('t-entrar', true);
 </script>
 </body>
 </html>
