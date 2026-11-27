@@ -191,6 +191,7 @@
   <div class="sub" id="fc-sub"></div>
   <h1 id="fc-nome"></h1>
   <img id="fc-foto" class="foto" alt="">
+  <div class="sub" id="fc-fmsg" style="margin-top:6px"></div>
   <div class="card" style="margin-top:10px; font-size:15px; line-height:1.45" id="fc-desc"></div>
   <div class="card" style="margin-top:10px; font-size:14px; line-height:1.5">
     <b>Para fechar a falha</b><br>1. Faça o conserto.<br>2. Meça de novo e tire a foto do medidor.<br>
@@ -207,7 +208,7 @@
 var URL_SISTEMA = 'https://script.google.com/macros/s/AKfycbxCoHmqxv5vIesYq6W6-6SozsCd6HxSRAyHA6ucCOjgOS5dsZiqvPlLHcHuWw-p6UU6/exec';
 var CORES = { exc:'#14502B', bom:'#5FA36F', ronda:'#D9A441', crit:'#B42318', sem:'#B8BDB9', fora:'#ECEAE3' };
 var TXT = { exc:'#fff', bom:'#0E2A17', ronda:'#2B1A00', crit:'#fff', sem:'#2B302D', fora:'#8A8F8B' };
-var NOMES = { exc:'Excelente', bom:'Bom', ronda:'Ronda', crit:'Crítico', sem:'Sem medir', fora:'Fora de uso' };
+var NOMES = { exc:'Excelente', bom:'Bom', ronda:'Ronda', crit:'Crítico', sem:'Falta medir hoje', fora:'Fora de uso' };
 var IC = {
   camera:'<path d="M3 8a2 2 0 0 1 2-2h2.5l1.5-2h6l1.5 2H19a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.5"/>',
   lista:'<path d="M4 6h16M4 12h16M4 18h16"/>', mapa:'<path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/>',
@@ -251,7 +252,7 @@ function infoModulos() { return (est && est.modulos) || Object.keys(GEO.modulos)
 function situacao(m) {
   if (!m.ativo) return 'fora';
   if (!m.ultima || m.ultima.kv === '' || m.ultima.kv == null) return 'sem';
-  if (m.diasSemMedicao != null && m.diasSemMedicao >= 2) return 'sem';
+  if (diaISO(m.ultima.dataHora) !== hojeISO()) return 'sem'; // zera à meia-noite: só vale a medição de hoje
   return faixaKv(+m.ultima.kv);
 }
 function medidoHoje(m) { return medidosHojeLocal().indexOf(m.modulo) >= 0 || (m.ultima && diaISO(m.ultima.dataHora) === hojeISO()); }
@@ -340,10 +341,11 @@ $('e-entrar').onclick = function () {
   var nome = $('e-nome').value.trim(), senha = $('e-senha').value.trim();
   if (!nome || !senha) return msgEntrar('Preencha o nome e a senha.');
   $('e-entrar').textContent = 'Conferindo…';
-  fetch(URL_SISTEMA + '?acao=login&senha=' + encodeURIComponent(senha)).then(function (r) { return r.json(); }).then(function (d) {
+  fetch(URL_SISTEMA + '?senha=' + encodeURIComponent(senha)).then(function (r) { return r.json(); }).then(function (d) {
     if (!d.ok) throw new Error(d.erro === 'senha' ? 'Senha errada. Confira com a gerência.' : 'Erro: ' + d.erro);
     cfg = { nome: nome, senha: senha, perfil: d.perfil }; gravar('cfg', cfg);
-    return atualizar(false).then(function () { abrir({ 'Controle':'ronda', 'Manutenção':'manut' }[cfg.perfil] || 'painel'); });
+    est = d; gravar('estado', d);
+    abrir({ 'Controle':'ronda', 'Manutenção':'manut' }[cfg.perfil] || 'painel');
   }).catch(function (e) { msgEntrar(e.message.indexOf('Senha') === 0 || e.message.indexOf('Erro') === 0 ? e.message : 'Sem conexão. Faça isto no Wi-Fi da sede.'); })
     .finally(function () { $('e-entrar').textContent = 'Entrar'; });
 };
@@ -508,16 +510,18 @@ function desenharPainel() {
   if ($('p-vfalhas')) $('p-vfalhas').onclick = function () { abrir('manut'); };
   $('p-aparelhos').innerHTML = porAparelho(mods).map(function (g) {
     var at = g.modulos.filter(function (m) { return m.ativo; });
-    var lidos = at.filter(function (m) { return m.ultima && m.ultima.kv !== ''; });
+    var lidos = at.filter(function (m) { return situacao(m) !== 'sem'; });
     if (!at.length) return '<div class="linha" style="color:#8A8F8B"><span class="marca" style="background:#D5D3CB"></span><div style="flex:1"><b>Aparelho ' + esc(g.aparelho) + '</b><div class="sub">' + esc(marcaAparelho(g.aparelho)) + ' · ' + g.modulos.length + ' módulos fora de uso</div></div></div>';
     var pior = lidos.sort(function (a, b) { return a.ultima.kv - b.ultima.kv; })[0];
     var s = pior ? faixaKv(+pior.ultima.kv) : 'sem';
-    return '<div class="linha"><span class="marca" style="background:' + CORES[s] + '"></span><div style="flex:1"><b>Aparelho ' + esc(g.aparelho) + ' · ' + esc(marcaAparelho(g.aparelho)) + '</b><div class="sub">' + at.length + ' módulos' + (pior ? ' · pior: ' + esc(pior.modulo) : '') + '</div></div><span class="num">' + (pior ? fmt(pior.ultima.kv) + ' kV' : '–') + '</span></div>';
+    return '<div class="linha"><span class="marca" style="background:' + CORES[s] + '"></span><div style="flex:1"><b>Aparelho ' + esc(g.aparelho) + ' · ' + esc(marcaAparelho(g.aparelho)) + '</b><div class="sub">' + lidos.length + ' de ' + at.length + ' medidos hoje' + (pior ? ' · pior: ' + esc(pior.modulo) : '') + '</div></div><span class="num">' + (pior ? fmt(pior.ultima.kv) + ' kV' : '–') + '</span></div>';
   }).join('');
   var ordem = { crit:0, ronda:1, sem:2, bom:3, exc:4 };
   $('p-modulos').innerHTML = ativos.slice().sort(function (a, b) { return (ordem[situacao(a)] - ordem[situacao(b)]) || compararMod(a.modulo, b.modulo); }).map(function (m) {
-    var s = situacao(m);
-    return '<button class="linha" data-hist="' + esc(m.modulo) + '"><span class="marca" style="background:' + CORES[s] + '"></span><div style="flex:1"><b>MOD ' + esc(m.modulo) + '</b><div class="sub">' + (m.ultima ? fmtData(m.ultima.dataHora) + ' · ' + esc(m.ultima.pessoa) : 'nunca medido') + '</div></div><span class="num">' + (m.ultima ? fmt(m.ultima.kv) + ' kV' : '–') + '</span></button>';
+    var s = situacao(m), hoje = s !== 'sem';
+    return '<button class="linha" data-hist="' + esc(m.modulo) + '"><span class="marca" style="background:' + CORES[s] + '"></span><div style="flex:1"><b>MOD ' + esc(m.modulo) + '</b><div class="sub">' +
+      (hoje ? 'Hoje ' + fmtData(m.ultima.dataHora).split(' ').pop() + ' · ' + esc(m.ultima.pessoa) : (m.ultima ? 'Falta medir hoje · última: ' + fmt(m.ultima.kv) + ' kV em ' + fmtData(m.ultima.dataHora) : 'Falta medir hoje · nunca medido')) +
+      '</div></div><span class="num">' + (hoje ? fmt(m.ultima.kv) + ' kV' : '–') + '</span></button>';
   }).join('');
   $('p-modulos').querySelectorAll('[data-hist]').forEach(function (b) { b.onclick = function () { abrirHistorico(b.getAttribute('data-hist')); }; });
 }
@@ -615,29 +619,48 @@ function desenharManut() {
   var falhas = (est && est.falhas) || [];
   $('mn-qf').textContent = '· ' + falhas.length;
   $('mn-falhas').innerHTML = falhas.map(function (f) {
-    return '<button class="linha" data-falha="' + esc(f.id) + '" style="align-items:flex-start"><span class="marca" style="background:#B42318"></span><div style="flex:1"><b>MOD ' + esc(f.modulo) + '</b><div style="font-size:14px; line-height:1.35; margin:3px 0">' + esc(f.descricao) + '</div><div class="sub">' + esc(f.pessoa) + ' (' + esc(f.perfil) + ') · ' + fmtData(f.dataHora) + '</div></div>›</button>';
+    return '<button class="linha" data-falha="' + esc(f.id) + '" style="align-items:flex-start"><span class="marca" style="background:#B42318"></span>' + (f.fotoId && navigator.onLine ? '<img src="' + linkFoto(f.fotoId, 200) + '" alt="" onerror="this.remove()" style="width:56px; height:56px; object-fit:cover; border-radius:8px; flex:none">' : '') + '<div style="flex:1"><b>MOD ' + esc(f.modulo) + '</b><div style="font-size:14px; line-height:1.35; margin:3px 0">' + esc(f.descricao) + '</div><div class="sub">' + esc(f.pessoa) + ' (' + esc(f.perfil) + ') · ' + fmtData(f.dataHora) + '</div></div>›</button>';
   }).join('') || '<div class="card sub">Nenhuma falha aberta.</div>';
   $('mn-falhas').querySelectorAll('[data-falha]').forEach(function (b) { b.onclick = function () { abrirFechar(b.getAttribute('data-falha')); }; });
-  var crit = infoModulos().filter(function (m) { return m.ativo && situacao(m) === 'crit'; });
+  // Manutenção vê o crítico até alguém medir de novo (não zera à meia-noite)
+  var crit = infoModulos().filter(function (m) { return m.ativo && m.ultima && m.ultima.kv !== '' && m.ultima.kv != null && faixaKv(+m.ultima.kv) === 'crit'; });
   $('mn-criticos').innerHTML = crit.map(function (m) {
     var temFalha = falhas.some(function (f) { return f.modulo === m.modulo; });
     return '<button class="linha" data-hist="' + esc(m.modulo) + '"><span class="marca" style="background:#B42318"></span><div style="flex:1"><b>MOD ' + esc(m.modulo) + '</b><div class="sub">Aparelho ' + esc(m.aparelho) + (temFalha ? ' · tem falha aberta' : ' · sem falha informada') + '</div></div><span class="num">' + fmt(m.ultima.kv) + ' kV</span></button>';
   }).join('') || '<div class="card sub">Nenhum módulo crítico.</div>';
   $('mn-criticos').querySelectorAll('[data-hist]').forEach(function (b) { b.onclick = function () { abrirHistorico(b.getAttribute('data-hist')); }; });
 }
+// Foto da falha: tenta pelo link do Drive (rápido); se não der, pede ao sistema.
+function linkFoto(id, tam) { return 'https://drive.google.com/thumbnail?id=' + encodeURIComponent(id) + '&sz=w' + (tam || 1000); }
+function carregarFotoFalha(f, img, msg) {
+  img.removeAttribute('src');
+  if (!f.fotoId) { msg.textContent = 'Esta falha não tem foto guardada.'; return; }
+  if (!navigator.onLine) { msg.textContent = 'Sem internet: a foto aparece quando conectar no Wi-Fi.'; return; }
+  msg.textContent = 'Carregando foto…';
+  var tentouSistema = false;
+  img.onload = function () { msg.textContent = ''; };
+  img.onerror = function () {
+    if (tentouSistema) { msg.textContent = 'Não consegui carregar a foto. Tente de novo no Wi-Fi.'; return; }
+    tentouSistema = true;
+    fetch(URL_SISTEMA + '?acao=foto&id=' + encodeURIComponent(f.fotoId) + '&senha=' + encodeURIComponent(cfg.senha)).then(function (r) { return r.json(); })
+      .then(function (d) { if (d.ok) img.src = 'data:image/jpeg;base64,' + d.foto; else msg.textContent = 'Foto não encontrada no Drive.'; })
+      .catch(function () { msg.textContent = 'Não consegui carregar a foto. Tente de novo no Wi-Fi.'; });
+  };
+  img.src = linkFoto(f.fotoId);
+}
 function abrirFechar(id) {
   var f = ((est && est.falhas) || []).filter(function (x) { return x.id === id; })[0]; if (!f) return;
   falhaAberta = f;
   $('fc-nome').textContent = 'MOD ' + f.modulo; $('fc-sub').textContent = 'Falha aberta · ' + fmtData(f.dataHora);
   $('fc-desc').innerHTML = esc(f.descricao) + '<div class="sub" style="margin-top:6px">' + esc(f.pessoa) + ' (' + esc(f.perfil) + ')</div>';
-  $('fc-foto').removeAttribute('src');
-  if (f.fotoId && navigator.onLine) fetch(URL_SISTEMA + '?acao=foto&id=' + encodeURIComponent(f.fotoId) + '&senha=' + encodeURIComponent(cfg.senha)).then(function (r) { return r.json(); })
-    .then(function (d) { if (d.ok) $('fc-foto').src = 'data:image/jpeg;base64,' + d.foto; }).catch(function () {});
+  carregarFotoFalha(f, $('fc-foto'), $('fc-fmsg'));
   mostrar('t-fechar');
 }
 
 // ======================= INICIAR =======================
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+var diaAtual = hojeISO();
+setInterval(function () { if (hojeISO() !== diaAtual) { diaAtual = hojeISO(); redesenharAtual(); } }, 60000);
 if (cfg) { abrir({ 'Controle':'ronda', 'Manutenção':'manut' }[cfg.perfil] || 'painel'); enviarFila(); atualizar(true); }
 else mostrar('t-entrar', true);
 </script>
